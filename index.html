@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 Tesla Model Y — Buy New vs Used with FSD Calculator</title>
+<meta name="description" content="Compare buying a 2026 Tesla Model Y new vs used with lifetime FSD. Interactive calculator with Golden Window scenario.">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;background:#0a0a1a;color:#e0e0f0;min-height:100vh;padding:16px}
+  .wrap{max-width:740px;margin:0 auto}
+  .badge{display:inline-block;background:linear-gradient(135deg,#e84545,#ff6b6b);border-radius:20px;padding:3px 14px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:#fff;text-transform:uppercase}
+  h1{font-size:22px;font-weight:800;color:#f0f0ff;margin:4px 0 0}
+  .sub{color:#e84545;font-size:14px;font-weight:600;margin:2px 0 0}
+  .dim{color:#505070;font-size:12px;margin:2px 0 0}
+  .tabs{display:flex;gap:6px;margin:14px 0}
+  .tab{flex:1;padding:10px 0;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;font-family:inherit}
+  .tab.on{background:#e84545;color:#fff}
+  .tab.off{background:#1a1a3a;color:#707090}
+  .tab:hover{opacity:.9}
+  .card{background:#12122a;border-radius:12px;padding:16px;margin-bottom:12px}
+  .card-head{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+  .accent-border{border-top:3px solid var(--ac)}
+  .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1a3a;font-size:12px}
+  .row .l{color:#b0b0c0}.row .v{color:#e0e0f0;font-weight:400}
+  .row.dim .l{color:#505070;font-size:11px}.row.dim .v{font-size:11px;color:#707090}
+  .row.bold .v{font-weight:700;font-size:13px}
+  .slider-wrap{margin-bottom:16px}
+  .slider-top{display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px;color:#b0b0c0}
+  .slider-top .val{font-weight:600;color:#e0e0f0}
+  input[type=range]{width:100%;accent-color:#e84545;height:6px}
+  .cols{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .cols>.card{flex:1 1 200px;margin-bottom:0}
+  .bar-wrap{background:#1a1a2e;border-radius:6px;height:22px;width:100%;overflow:hidden;margin-bottom:10px}
+  .bar-fill{height:100%;border-radius:6px;transition:width .4s ease}
+  .bar-label{display:flex;justify-content:space-between;font-size:11px;color:#909090;margin-bottom:3px}
+  .winner-box{border-radius:14px;padding:20px;text-align:center;background:linear-gradient(135deg,#1a0a2a,#0a1a2a);border:2px solid #ffffff22;margin-bottom:12px}
+  .winner-box .tag{font-size:10px;color:#606080;text-transform:uppercase;letter-spacing:2px}
+  .winner-box .name{font-size:20px;font-weight:800;margin:4px 0}
+  .winner-box .price{font-size:24px;font-weight:800;color:#fff}
+  .winner-box .save{font-size:12px;color:#909090;margin-top:4px}
+  .stat-block{text-align:center;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid #1a1a3a}
+  .stat-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .stat-block .lbl{font-size:10px;color:#606080}
+  .stat-block .num{font-size:22px;font-weight:800}
+  .stat-block .unit{font-size:11px;font-weight:400}
+  .golden-note{margin-top:12px;padding:14px;background:#1a1a10;border:1px solid #ffd93d33;border-radius:10px;font-size:12px;color:#b0b090;line-height:1.7}
+  .golden-note strong{color:#ffd93d}
+  .footnote{padding:14px;background:#12122a;border-radius:10px;font-size:11px;color:#505070;line-height:1.7;margin-top:12px}
+  .footnote strong{color:#707080}
+  .config-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid #1a1a3a}
+  .config-row .l{color:#b0b0c0}.config-row .v{color:#e0e0f0}
+  select{background:#1a1a3a;color:#e0e0f0;border:1px solid #2a2a4a;border-radius:6px;padding:6px 10px;font-size:13px;font-family:inherit;width:100%;margin-bottom:12px;cursor:pointer}
+  select:focus{outline:1px solid #e84545}
+  option{background:#12122a;color:#e0e0f0}
+  .trim-label{font-size:12px;color:#909090;margin-bottom:4px}
+  @media(max-width:600px){.cols{flex-direction:column}.cols>.card{flex:1 1 auto}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const TRIMS = [
+  { name: "RWD (Base)", base: 41630, apr: 0, note: "0% APR promo" },
+  { name: "AWD (Base)", base: 43630, apr: 0, note: "0% APR promo" },
+  { name: "Premium RWD", base: 46630, apr: 0.99, note: "0.99% APR promo" },
+  { name: "Premium AWD", base: 50630, apr: 0.99, note: "0.99% APR promo" },
+  { name: "Performance AWD", base: 59130, apr: 5.29, note: "5.29% APR (no promo)" },
+];
+const PAINTS = [
+  { name: "Stealth Grey (Standard)", cost: 0 },
+  { name: "Pearl White", cost: 1000 },
+  { name: "Solid Black", cost: 1000 },
+  { name: "Deep Blue Metallic", cost: 1500 },
+  { name: "Ultra Red", cost: 2000 },
+  { name: "Quicksilver", cost: 2000 },
+];
+const INTERIORS = [
+  { name: "All Black (Standard)", cost: 0 },
+  { name: "Black & White", cost: 1000 },
+];
+
+let state = {
+  trimIdx: 3, paintIdx: 4, intIdx: 1,
+  downPct: 10, usedPremium: 2000, usedRate: 5.5,
+  fsdMonths: 36, term: 72, tab: "golden"
+};
+
+function $(s){ return document.querySelector(s) }
+function fmt(n){ return "$" + Math.round(n).toLocaleString() }
+
+function calcLoan(price, rate, months, downPct, fsdSub) {
+  const down = price * (downPct / 100);
+  const loan = price - down;
+  const mr = rate / 100 / 12;
+  const mo = mr === 0 ? loan / months : (loan * mr) / (1 - Math.pow(1 + mr, -months));
+  const total = down + mo * months;
+  const interest = total - price;
+  return { price, rate, down, loan, mo, total, interest, fsd: fsdSub, grand: total + fsdSub };
+}
+
+function render() {
+  const t = TRIMS[state.trimIdx], p = PAINTS[state.paintIdx], i = INTERIORS[state.intIdx];
+  const configPrice = t.base + p.cost + i.cost;
+  const fsdSub = state.fsdMonths * 99;
+
+  const a = calcLoan(configPrice, t.apr, state.term, state.downPct, fsdSub);
+  const b = calcLoan(configPrice + state.usedPremium, state.usedRate, state.term, state.downPct, 0);
+  const goldenPrice = configPrice + 8000 - 7500;
+  const c = calcLoan(goldenPrice, Math.min(t.apr || 0.99, 0.99), state.term, state.downPct, 0);
+
+  const scenarios = state.tab === "now"
+    ? [{ k:"a", label:"A: Buy New Today", ac:"#e84545", d:a }, { k:"b", label:"B: Used w/ Lifetime FSD", ac:"#48dbfb", d:b }]
+    : [{ k:"a", label:"A: Buy New Today", ac:"#e84545", d:a }, { k:"b", label:"B: Used w/ Lifetime FSD", ac:"#48dbfb", d:b }, { k:"c", label:"C: Golden Window (2025)", ac:"#ffd93d", d:c }];
+
+  const maxBar = Math.max(...scenarios.map(s => s.d.grand)) * 1.05;
+  const minG = Math.min(...scenarios.map(s => s.d.grand));
+  const winner = scenarios.find(s => s.d.grand === minG);
+  const maxG = Math.max(...scenarios.map(s => s.d.grand));
+
+  let html = `
+  <div style="text-align:center;margin-bottom:6px">
+    <div class="badge">Your Build</div>
+    <h1>2026 Model Y ${t.name}</h1>
+    <p class="sub">${p.name} · ${i.name}</p>
+    <p class="dim">As-configured: ${fmt(configPrice)} incl. destination</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head" style="color:#e84545">Configure Your Build</div>
+    <div class="trim-label">Trim</div>
+    <select id="sel-trim">${TRIMS.map((tr,idx) => `<option value="${idx}" ${idx===state.trimIdx?'selected':''}>${tr.name} — ${fmt(tr.base)} (${tr.note})</option>`).join('')}</select>
+    <div class="trim-label">Paint</div>
+    <select id="sel-paint">${PAINTS.map((pp,idx) => `<option value="${idx}" ${idx===state.paintIdx?'selected':''}>${pp.name}${pp.cost ? ' (+'+fmt(pp.cost)+')':''}</option>`).join('')}</select>
+    <div class="trim-label">Interior</div>
+    <select id="sel-int">${INTERIORS.map((ii,idx) => `<option value="${idx}" ${idx===state.intIdx?'selected':''}>${ii.name}${ii.cost ? ' (+'+fmt(ii.cost)+')':''}</option>`).join('')}</select>
+    <div style="border-top:1px solid #1a1a3a;padding-top:8px;margin-top:4px">
+      <div class="config-row"><span class="l">Base (${t.name})</span><span class="v">${fmt(t.base)}</span></div>
+      ${p.cost ? `<div class="config-row"><span class="l">${p.name}</span><span class="v">+${fmt(p.cost)}</span></div>` : ''}
+      ${i.cost ? `<div class="config-row"><span class="l">${i.name}</span><span class="v">+${fmt(i.cost)}</span></div>` : ''}
+      <div class="config-row" style="border-bottom:none"><span class="l" style="font-weight:700;color:#e0e0f0">Total</span><span class="v" style="font-weight:700;color:#e84545">${fmt(configPrice)}</span></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab ${state.tab==='now'?'on':'off'}" onclick="setState('tab','now')">Today's 2 Options</button>
+    <button class="tab ${state.tab==='golden'?'on':'off'}" onclick="setState('tab','golden')">+ Golden Window</button>
+  </div>
+
+  <div class="card">
+    ${slider("Down Payment","downPct",5,25,1,state.downPct+"%")}
+    ${slider("Used Price vs. New","usedPremium",-5000,5000,500, state.usedPremium===0?"Same":state.usedPremium>0?"+"+fmt(state.usedPremium):fmt(state.usedPremium))}
+    ${slider("Used Car APR","usedRate",3.5,9,0.25,state.usedRate+"%")}
+    ${slider("Months You'd Use FSD","fsdMonths",0,72,6,state.fsdMonths+" mo ("+fmt(state.fsdMonths*99)+")")}
+    ${slider("Loan Term","term",36,84,12,state.term+" mo")}
+  </div>
+
+  <div class="cols">
+    ${scenarios.map(s => `
+      <div class="card accent-border" style="--ac:${s.ac}">
+        <div class="card-head" style="color:${s.ac}">${s.label}</div>
+        <div class="row"><span class="l">Vehicle Price</span><span class="v">${fmt(s.d.price)}</span></div>
+        ${s.k==='c' ? '<div class="row dim"><span class="l">&nbsp;&nbsp;= config + $8K FSD − $7.5K credit</span><span class="v"></span></div>' : ''}
+        <div class="row"><span class="l">APR</span><span class="v">${s.d.rate}%</span></div>
+        <div class="row dim"><span class="l">Down</span><span class="v">${fmt(s.d.down)}</span></div>
+        <div class="row dim"><span class="l">Financed</span><span class="v">${fmt(s.d.loan)}</span></div>
+        <div class="row"><span class="l">Monthly</span><span class="v">${fmt(s.d.mo)}/mo</span></div>
+        <div class="row"><span class="l">Total Interest</span><span class="v">${fmt(s.d.interest)}</span></div>
+        <div class="row"><span class="l">${s.k==='a'?'FSD Sub ('+state.fsdMonths+' mo)':'FSD'}</span><span class="v">${s.d.fsd===0?(s.k==='c'?'Incl. above':'$0 (included)'):fmt(s.d.fsd)}</span></div>
+        <div style="height:6px"></div>
+        <div class="row bold"><span class="l" style="font-weight:700">TOTAL COST</span><span class="v" style="color:${s.ac}">${fmt(s.d.grand)}</span></div>
+      </div>
+    `).join('')}
+  </div>
+
+  <div class="card">
+    <div class="card-head" style="color:#808090">Total Cost Comparison</div>
+    ${scenarios.map(s => `
+      <div class="bar-label"><span>${s.label}</span><span style="color:${s.ac};font-weight:600">${fmt(s.d.grand)}</span></div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${(s.d.grand/maxBar*100).toFixed(1)}%;background:${s.ac}"></div></div>
+    `).join('')}
+  </div>
+
+  <div class="cols">
+    <div class="card" style="flex:1">
+      <div class="card-head" style="color:#808090">Monthly Payment</div>
+      ${scenarios.map(s => `
+        <div class="stat-block">
+          <div class="lbl">${s.label}</div>
+          <div class="num" style="color:${s.ac}">${fmt(s.d.mo)}<span class="unit">/mo</span></div>
+          ${s.k==='a'&&state.fsdMonths>0?'<div class="lbl">+ $99/mo FSD when active</div>':''}
+        </div>
+      `).join('')}
+    </div>
+    <div class="card" style="flex:1">
+      <div class="card-head" style="color:#808090">Interest Paid</div>
+      ${scenarios.map(s => `
+        <div class="stat-block">
+          <div class="lbl">${s.label} @ ${s.d.rate}%</div>
+          <div class="num" style="color:${s.ac}">${fmt(s.d.interest)}</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+
+  <div class="winner-box" style="border-color:${winner.ac}66">
+    <div class="tag">Best Deal With These Settings</div>
+    <div class="name" style="color:${winner.ac}">${winner.label}</div>
+    <div class="price">${fmt(winner.d.grand)}</div>
+    <div class="save">Saves up to ${fmt(maxG - winner.d.grand)} vs. the most expensive option</div>
+  </div>
+
+  ${state.tab==='golden' ? `
+  <div class="golden-note">
+    <strong>Scenario C — "Golden Window" (May–Sep 2025):</strong> Buyers who purchased the 2026 Juniper Model Y during this period could get Tesla's 0.99% APR <em>and</em> buy lifetime FSD for $8,000 <em>and</em> claim the $7,500 federal EV tax credit at point of sale. Net price: ${fmt(configPrice)} + $8,000 − $7,500 = <strong>${fmt(goldenPrice)}</strong>. This is the car you'd find at CarMax — it shows how good the original deal was and helps judge if the used price is fair.
+  </div>` : ''}
+
+  <div class="footnote">
+    <strong>Build:</strong> 2026 MY ${t.name} ${fmt(t.base)} + ${p.name} ${p.cost?'+'+fmt(p.cost):''} + ${i.name} ${i.cost?'+'+fmt(i.cost):''} = ${fmt(configPrice)}.
+    <strong>Rates:</strong> New = Tesla ${t.apr}% promo | Used = ${state.usedRate}% (your setting) | Golden = ${Math.min(t.apr||0.99,0.99)}%.
+    <strong>FSD:</strong> Sub $99/mo (A) | Lifetime included (B) | Purchased $8K (C).
+    <strong>Tax credit:</strong> $7,500 applied to Golden Window only (expired Sep 30, 2025).
+    Excludes tax, registration, insurance, and auto loan interest deduction. Prices as of April 2026 — verify on tesla.com before purchasing.
+  </div>`;
+
+  $('#app').innerHTML = html;
+  // Rebind events
+  $('#sel-trim').onchange = e => { state.trimIdx = +e.target.value; render(); };
+  $('#sel-paint').onchange = e => { state.paintIdx = +e.target.value; render(); };
+  $('#sel-int').onchange = e => { state.intIdx = +e.target.value; render(); };
+  document.querySelectorAll('input[type=range]').forEach(el => {
+    el.oninput = e => { state[e.target.dataset.key] = +e.target.value; render(); };
+  });
+}
+
+function slider(label, key, min, max, step, display) {
+  return `<div class="slider-wrap">
+    <div class="slider-top"><span>${label}</span><span class="val">${display}</span></div>
+    <input type="range" min="${min}" max="${max}" step="${step}" value="${state[key]}" data-key="${key}">
+  </div>`;
+}
+
+function setState(key, val) { state[key] = val; render(); }
+
+render();
+</script>
+</body>
+</html>
